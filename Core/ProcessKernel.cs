@@ -1,0 +1,52 @@
+using System;
+using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using Synchro.Services;
+
+namespace Synchro.Core
+{
+    public class ProcessKernel
+    {
+        //the discord client, that is attached to the bot in order to perform action with the discord api
+        private DiscordSocketClient _client;
+        
+        //the service, that the Command Handler needs in order to aggregate each command module to it.
+        private CommandService _commands;
+        
+        //the token of the bot
+        private string _discordToken;
+
+        public ProcessKernel()
+        {
+            _client = new DiscordSocketClient();
+            _commands = new CommandService();
+            _discordToken = Environment.GetEnvironmentVariable("DISCORDTOKEN");
+
+            if (_discordToken == null)
+            {
+                throw new ArgumentNullException("$DISCORDTOKEN","Please use $DISCORDTOKEN in order to set the token of the discord bot.");
+            }
+        }
+        
+        public async Task Main()
+        {
+            //we attach to the logging event our own custom logging service
+            _client.Log += Logging.Log;
+            
+            //we connnect to the discord api
+            await _client.LoginAsync(TokenType.Bot, _discordToken);
+            await _client.StartAsync();
+            
+            //information about the status of the bot displayed on stdout
+            _client.Ready += () =>
+            {
+                Console.WriteLine("Bot is connected !");
+                return Task.CompletedTask;
+            };
+            //we want the core Handler to be running ad vidam eternam for the moment
+            await Task.Delay(-1);
+        }
+    }
+}
