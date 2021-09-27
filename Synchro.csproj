@@ -6,12 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Models" />
-      <Folder Include="Modules" />
+      <PackageReference Include="Discord.Net" Version="2.4.0" />
+      <PackageReference Include="YoutubeExplode.Converter" Version="2.1.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Discord.Net" Version="2.4.0" />
+      <Compile Remove="Handlers\MusicHandler.cs" />
     </ItemGroup>
 
 </Project>
