@@ -70,6 +70,11 @@ namespace Synchro.Models
         public void ClearMusicProvider() => _musicService.ClearMusicProvider();
         
         /// <summary>
+        /// Method called when a user wants to clear its streaming queue
+        /// </summary>
+        public void ClearQueue() => _musicService.ClearQueue();
+        
+        /// <summary>
         /// Play Music will call PlayMusic method of music service.
         /// </summary>
         /// <param name="audioClient">The audioclient where we should copy the music stream into</param>

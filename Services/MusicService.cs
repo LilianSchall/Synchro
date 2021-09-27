@@ -124,6 +124,11 @@ namespace Synchro.Services
             _isPlaying = false;
             _streamQueue = new List<VideoSearchResult>();
         }
+
+        /// <summary>
+        /// Method called when a user wants to clear its streaming queue
+        /// </summary>
+        public void ClearQueue() => _streamQueue.Clear();
         
         /// <summary>
         /// PlayMusic is going to EOS when the bot is not already playing music

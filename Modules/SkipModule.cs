@@ -21,5 +21,8 @@ namespace Synchro.Modules
             await BotProperties.GuildPropsMap[Context.Guild.Id].SkipToNextMusic();
             Console.WriteLine("Skip module finished");
         }
+
+        [Command("s")]
+        public async Task SkipS() => await Skip();
     }
 }

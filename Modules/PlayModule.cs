@@ -62,7 +62,7 @@ namespace Synchro.Modules
                 EmbedBuilder eb = new EmbedBuilder()
                 {
                     Title = "Added to queue",
-                    Description = "["+ info.Result.Title +"](" + info.Result.Url + ")!",
+                    Description = "["+ info.Result.Title +"](" + info.Result.Url + ")",
                     ThumbnailUrl = info.Result.Thumbnails[0].Url
                 };
                 eb.AddField("Channel", info.Result.Author)
@@ -71,5 +71,9 @@ namespace Synchro.Modules
                 await ReplyAsync(embed: eb.Build());
             }
         }
+
+        [Command("p", RunMode = RunMode.Async)]
+        public async Task PlayP([Remainder] string message) => await Play(message);
+        
     }
 }
