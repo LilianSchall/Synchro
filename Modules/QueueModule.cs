@@ -18,7 +18,7 @@ namespace Synchro.Modules
         {
             Console.WriteLine("User " + Context.User + "is trying to play music.");
             IVoiceChannel channel = (Context.User as IGuildUser)?.VoiceChannel;
-            if (channel != Context.Guild.CurrentUser.VoiceChannel)
+            if (channel == null || channel != Context.Guild.CurrentUser.VoiceChannel)
             {
                 await ReplyAsync("❌ **You are not connected in the right voice channel currently.**");
                 return;

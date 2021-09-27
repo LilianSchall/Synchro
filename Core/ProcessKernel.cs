@@ -28,7 +28,7 @@ namespace Synchro.Core
             _client = new DiscordSocketClient();
             _commands = new CommandService();
             _discordToken = Environment.GetEnvironmentVariable("DISCORDTOKEN");
-
+            Console.WriteLine("discord token: " + _discordToken);
             if (_discordToken == null)
             {
                 throw new ArgumentNullException("$DISCORDTOKEN","Please use $DISCORDTOKEN in order to set the token of the discord bot.");

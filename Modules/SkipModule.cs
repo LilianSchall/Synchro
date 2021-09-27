@@ -16,10 +16,24 @@ namespace Synchro.Modules
         [Command("skip")]
         public async Task Skip()
         {
-            await ReplyAsync("⏩ **Skipping to next music...**");
-            Console.WriteLine("Skip module called");
-            await BotProperties.GuildPropsMap[Context.Guild.Id].SkipToNextMusic();
-            Console.WriteLine("Skip module finished");
+            IVoiceChannel channel = (Context.User as IGuildUser)?.VoiceChannel;
+            if (channel == null || channel != Context.Guild.CurrentUser.VoiceChannel)
+            {
+                await ReplyAsync("❌ **You are not connected in the right voice channel currently.**");
+                return;
+            }
+
+            if (BotProperties.GuildPropsMap[Context.Guild.Id].HasMusicInQueue())
+            {
+                await ReplyAsync("⏩ **Skipping to next music...**");
+
+                await BotProperties.GuildPropsMap[Context.Guild.Id].SkipToNextMusic();
+            }
+            else
+            {
+                await ReplyAsync("❌ **There isn't currently any music playing.**");
+            }
+            
         }
 
         [Command("s")]

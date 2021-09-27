@@ -35,6 +35,12 @@ namespace Synchro.Models
         public bool IsConnected() => _musicService.IsConnected();
         
         /// <summary>
+        /// Check if there is any music in the streamqueue right now
+        /// </summary>
+        /// <returns>whether there is any music currently in the streaming queue</returns>
+        public bool HasMusicInQueue() => _musicService.HasMusicInQueue();
+        
+        /// <summary>
         /// AddMusic is used to search a video based on a info given by user
         /// AddMusic will call AddMusic from musicService
         /// </summary>

@@ -208,5 +208,11 @@ namespace Synchro.Services
             _streamCancelToken = new CancellationTokenSource(); //we create a new one for the following music 
             
         }
+        
+        /// <summary>
+        /// Check if there is any music in the streamqueue right now
+        /// </summary>
+        /// <returns>whether there is any music currently in the streaming queue</returns>
+        public bool HasMusicInQueue() => _streamQueue.Count > 0 || _isPlaying;
     }
 }
