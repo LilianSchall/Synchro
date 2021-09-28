@@ -70,7 +70,8 @@ namespace Synchro.Modules
                     {
                         Title = "Added to queue",
                         Description = "["+ info.Result.Title +"](" + info.Result.Url + ")",
-                        ThumbnailUrl = info.Result.Thumbnails[0].Url
+                        ThumbnailUrl = info.Result.Thumbnails[0].Url,
+                        Color = Color.Blue
                     };
                     eb.AddField("Channel", info.Result.Author)
                         .AddField("Position in queue", info.Position);

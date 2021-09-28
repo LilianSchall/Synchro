@@ -23,13 +23,17 @@ namespace Synchro.Modules
                 await ReplyAsync("❌ **You are not connected in the right voice channel currently.**");
                 return;
             }
-            IGuild guild = (Context.User as IGuildUser)?.Guild;
 
-            Embed embed = BotProperties.GuildPropsMap[Context.Guild.Id].GetQueue();
+            if (BotProperties.GuildPropsMap[channel.Guild.Id].HasMusicInQueue())
+            {
+                Embed embed = BotProperties.GuildPropsMap[Context.Guild.Id].GetQueue();
+                await ReplyAsync(embed: embed);
+            }
+            else
+            {
+                await ReplyAsync("⤵️ **You have currently nothing in queue.** ");
+            }
             
-            
-            
-            await ReplyAsync(embed: embed);
         }
         
     }

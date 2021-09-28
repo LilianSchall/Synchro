@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -38,11 +39,12 @@ namespace Synchro.Services
         private bool _isPlaying;
         private bool _isConnected;
 
-        private Timer _disconnectTimer = null;
+        private readonly Timer _disconnectTimer = null;
         
         //Audio-referenced states
         private IAudioClient _audioClient = null;
         private IVoiceChannel _currentChannel = null;
+        private VideoSearchResult _currentSong = null;
 
         private int infiniteWaitingTime = -1; //infinite
         public MusicService()
@@ -116,7 +118,7 @@ namespace Synchro.Services
             //we define a standard embed structure with title color and little description
             EmbedBuilder embed = new EmbedBuilder()
             {
-                Color = Color.DarkBlue,
+                Color = Color.Blue,
                 Title = "Queue",
                 Description = guild.Name
             };
@@ -127,7 +129,10 @@ namespace Synchro.Services
                          "** " + " (Duration: " + _streamQueue[i].Duration + ")" + 
                          "\n";
             }
-            embed.AddField("Currently in the queue:", queue)
+            embed.AddField("Currently Playing", 
+                    (" - **" + _currentSong.Title + "**" + " by " + "**" + _currentSong.Author +
+                                                 "** " + " (Duration: " + _currentSong.Duration + ")"))
+                .AddField("Currently in the queue:", queue)
                 .WithCurrentTimestamp(); //we add the date
 
             return embed.Build(); //well, we build the embed
@@ -180,6 +185,7 @@ namespace Synchro.Services
                 //this await call will stuck at this state as long as we are playing a music
                 //and will play music as long as there is something in the streaming queue
                 await PlayNextMusic(ConsumeMusic(guild),guild);
+                _currentSong = null;
             }
             //reset states
             Console.WriteLine("There isn't music left in queue in guild " + guild.Name+": resetting playing state.");
@@ -242,10 +248,10 @@ namespace Synchro.Services
             if (_streamQueue.Count == 0)
                 throw new DataException("streamingQueue for guild" + guild.Name +
                                         "is empty, but consume music has been called");
-
-            VideoSearchResult video = _streamQueue[0];
+            
+            _currentSong = _streamQueue[0];
             _streamQueue.RemoveAt(0);
-            return video;
+            return _currentSong;
         }
 
 

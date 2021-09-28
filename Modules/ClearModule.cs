@@ -10,7 +10,7 @@ namespace Synchro.Modules
         public async Task Clear()
         {
             BotProperties.GuildPropsMap[Context.Guild.Id].ClearQueue();
-            await ReplyAsync("⏺ **Queue ! **" + Context.User.Mention);
+            await ReplyAsync("⏺ **Queue cleared ! **" + Context.User.Mention);
         }
     }
 }
