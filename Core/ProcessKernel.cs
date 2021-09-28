@@ -53,8 +53,10 @@ namespace Synchro.Core
             
             //setting up  other handlers...
             CommandHandler cmdHandler = new CommandHandler(_client, _commands);
-
+            VoiceStateHandler voiceHandler = new VoiceStateHandler(_client);
+            
             await cmdHandler.InstallCommands();
+            await voiceHandler.InstallDetector();
 
             //we want the process Kernel to be running ad vidam eternam for the moment
             await Task.Delay(-1);
