@@ -77,7 +77,7 @@ namespace Synchro.Services
         public bool HasMusicInQueue() => _streamQueue.Count > 0 || _isPlaying;
         
         /// <summary>
-        /// AddMusic: AddMusic is called when a user wnats to add a music to the streaming queue
+        /// AddMusic: AddMusic is called when a user wants to add a music to the streaming queue
         /// It will search the meta data of the content through _streamingService Search functionnality
         /// than it will check whether the video is longer than a constant defined in Bot static properties
         /// </summary>
