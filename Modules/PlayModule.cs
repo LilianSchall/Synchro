@@ -59,18 +59,28 @@ namespace Synchro.Modules
                     return;
                 }
                 //we don't need to mention the audioclient since we still got it in memory
-                await props.PlayMusic(channel);
 
-                EmbedBuilder eb = new EmbedBuilder()
+                if (!BotProperties.GuildPropsMap[channel.Guild.Id].IsPlaying())
                 {
-                    Title = "Added to queue",
-                    Description = "["+ info.Result.Title +"](" + info.Result.Url + ")",
-                    ThumbnailUrl = info.Result.Thumbnails[0].Url
-                };
-                eb.AddField("Channel", info.Result.Author)
-                    .AddField("Position in queue", info.Position);
+                    await ReplyAsync("**Playing** `" + info.Result.Title + "` **- Now !**");
+                }
+                else
+                {
+                    EmbedBuilder eb = new EmbedBuilder()
+                    {
+                        Title = "Added to queue",
+                        Description = "["+ info.Result.Title +"](" + info.Result.Url + ")",
+                        ThumbnailUrl = info.Result.Thumbnails[0].Url
+                    };
+                    eb.AddField("Channel", info.Result.Author)
+                        .AddField("Position in queue", info.Position);
+                    await ReplyAsync(embed: eb.Build());
+                }
+                
+                await props.PlayMusic(channel);
+                
 
-                await ReplyAsync(embed: eb.Build());
+                
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
@@ -18,6 +19,13 @@ namespace Synchro.Modules
                 await ReplyAsync("❌ **You are not connected to any voice channel currently.**");
                 return;
             }
+
+            if (Context.Guild.CurrentUser.VoiceChannel == null)
+            {
+                await ReplyAsync(
+                    "❌ **I am not connected to any channel currently. **" );
+                return;
+            }
             if (channel != Context.Guild.CurrentUser.VoiceChannel)
             {
                 await ReplyAsync(
@@ -27,6 +35,7 @@ namespace Synchro.Modules
 
             await ReplyAsync("✅ **Disconnected from channel: **" + channel.Name);
             await BotProperties.GuildPropsMap[channel.GuildId].ClearMusicProvider();
+            Console.WriteLine("Left channel " + channel.Name + "from Guild: " + channel.Guild.Name);
         }
         
     }
