@@ -34,6 +34,12 @@ namespace Synchro.Models
         /// </summary>
         /// <returns>boolean used to check if the bot is already connected on a voice channel</returns>
         public bool IsConnected() => _musicService.IsConnected();
+
+        /// <summary>
+        /// IsPlaying Getter
+        /// </summary>
+        /// <returns>returns whether the bot is currently playing music or not in a voice channel of the guild</returns>
+        public bool IsPlaying() => _musicService.IsPlaying();
         
         /// <summary>
         /// Check if there is any music in the streamqueue right now

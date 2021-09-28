@@ -63,6 +63,12 @@ namespace Synchro.Services
         public bool IsConnected() => _isConnected;
         
         /// <summary>
+        /// IsPlaying Getter
+        /// </summary>
+        /// <returns>returns whether the bot is currently playing music or not in a voice channel of the guild</returns>
+        public bool IsPlaying() => _isPlaying;
+
+        /// <summary>
         /// Check if there is any music in the streamqueue right now
         /// </summary>
         /// <returns>whether there is any music currently in the streaming queue</returns>
@@ -167,8 +173,7 @@ namespace Synchro.Services
             if(audioClient != null)
                 _audioClient = audioClient;
 
-            _disconnectTimer.Change((int) BotProperties.TimeoutTime.TotalMilliseconds,
-                (int) BotProperties.TimeoutTime.TotalMilliseconds); //this is ok because < Int32.MaxValue
+            ResetTimer();
             while (_streamQueue.Count > 0)
             {
                 _isPlaying = true;
@@ -177,6 +182,8 @@ namespace Synchro.Services
                 await PlayNextMusic(ConsumeMusic(guild),guild);
             }
             //reset states
+            Console.WriteLine("There isn't music left in queue in guild " + guild.Name+": resetting playing state.");
+            StartTimer();
             _isPlaying = false;
         }
         
@@ -190,7 +197,13 @@ namespace Synchro.Services
             _streamCancelToken.Cancel();
             _streamCancelToken.Dispose(); //we free the ram storage of token generator
             _streamCancelToken = new CancellationTokenSource(); //we create a new one for the following music 
+
+            _isPlaying = _streamQueue.Count > 0;
+            Console.WriteLine("Skipped music, bot " +  (_isPlaying ? "is still playing music" : "is not playing anymore"));
+            if (!_isPlaying)
+                StartTimer();
             
+
         }
         
         
@@ -234,6 +247,20 @@ namespace Synchro.Services
             _streamQueue.RemoveAt(0);
             return video;
         }
+
+
+        private void ResetTimer()
+        {
+            Console.WriteLine("Resetting Timer...");
+            _disconnectTimer.Change(infiniteWaitingTime, infiniteWaitingTime);
+        }
+        private void StartTimer()
+        {
+            Console.WriteLine("Starting timer for: " + BotProperties.TimeoutTime.TotalMinutes + " minutes.");
+            _disconnectTimer.Change((int) BotProperties.TimeoutTime.TotalMilliseconds,
+                (int) BotProperties.TimeoutTime.TotalMilliseconds); //this is ok because < Int32.MaxValue
+        }
+        
         /// <summary>
         /// Method that is trigger each interval of _disconnectTimer
         /// Check if we are playing a music and if not, then the trigger of this method
