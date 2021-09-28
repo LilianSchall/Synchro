@@ -58,7 +58,8 @@ namespace Synchro.Models
             }
             catch (Exception e)
             {
-                throw new ArgumentException("Video is longer than " + BotProperties.MaxVideoDuration + " minutes!");
+                throw new ArgumentException("Video is longer than " + 
+                                            BotProperties.MaxVideoDuration + " minutes!");
             }
             
         }
@@ -73,19 +74,22 @@ namespace Synchro.Models
         /// <summary>
         /// Method called when the bot has to leave a channel
         /// </summary>
-        public void ClearMusicProvider() => _musicService.ClearMusicProvider();
+        public async Task ClearMusicProvider(bool disconnect = true) => 
+            await _musicService.ClearMusicProvider(disconnect);
         
         /// <summary>
         /// Method called when a user wants to clear its streaming queue
         /// </summary>
         public void ClearQueue() => _musicService.ClearQueue();
-        
+
         /// <summary>
         /// Play Music will call PlayMusic method of music service.
         /// </summary>
+        /// <param name="channel">The channel we are connected to</param>
         /// <param name="audioClient">The audioclient where we should copy the music stream into</param>
         /// <returns>An async task</returns>
-        public async Task PlayMusic(IAudioClient audioClient) => await _musicService.PlayMusic(audioClient,_guild);
+        public async Task PlayMusic(IVoiceChannel channel, IAudioClient audioClient=null) => 
+            await _musicService.PlayMusic(channel,audioClient,_guild);
         
         /// <summary>
         /// SkipToNextMusic is used when the user wants to skip the music

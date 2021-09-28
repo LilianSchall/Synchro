@@ -24,7 +24,7 @@ namespace Synchro.Services
         private List<VideoSearchResult> _streamQueue;
         
         //Streaming service used to flush music into the discord stream
-        private StreamingService _streamingService;
+        private  readonly StreamingService _streamingService;
         
         //TokenGenerator used when the user wants to skip a music
         //This cancel the copyAsync method called in StreamingService
@@ -38,12 +38,20 @@ namespace Synchro.Services
         private bool _isPlaying;
         private bool _isConnected;
 
+        private Timer _disconnectTimer = null;
+        
+        //Audio-referenced states
+        private IAudioClient _audioClient = null;
+        private IVoiceChannel _currentChannel = null;
+
+        private int infiniteWaitingTime = -1; //infinite
         public MusicService()
         {
             _streamQueue = new List<VideoSearchResult>();
             _streamingService = new StreamingService();
             _streamCancelToken = new CancellationTokenSource();
-            
+            _disconnectTimer = new Timer(OnTimerElapsed, null, infiniteWaitingTime, 
+                (int)BotProperties.TimeoutTime.TotalMilliseconds);//this is ok because < Int32.MaxValue
             _isPlaying = false;
             _isConnected = false;
         }
@@ -53,6 +61,12 @@ namespace Synchro.Services
         /// </summary>
         /// <returns>returns whether the bot is connected to a voice channel in the guild</returns>
         public bool IsConnected() => _isConnected;
+        
+        /// <summary>
+        /// Check if there is any music in the streamqueue right now
+        /// </summary>
+        /// <returns>whether there is any music currently in the streaming queue</returns>
+        public bool HasMusicInQueue() => _streamQueue.Count > 0 || _isPlaying;
         
         /// <summary>
         /// AddMusic: AddMusic is called when a user wnats to add a music to the streaming queue
@@ -118,11 +132,15 @@ namespace Synchro.Services
         /// not playing any music
         /// and with the streaming queue cleared
         /// </summary>
-        public void ClearMusicProvider()
+        public async Task ClearMusicProvider(bool disconnect)
         {
             _isConnected = false;
             _isPlaying = false;
             _streamQueue = new List<VideoSearchResult>();
+            _audioClient = null;
+
+            if (_currentChannel != null && disconnect)
+                await _currentChannel.DisconnectAsync();
         }
 
         /// <summary>
@@ -135,26 +153,47 @@ namespace Synchro.Services
         /// PlayMusic will call PlayNextMusic in order to tell the streaming service to
         /// flush a video into discord stream
         /// </summary>
+        /// <param name="channel">The channel we are connected to</param>
         /// <param name="audioClient">The guild audioclient</param>
         /// <param name="guild">The guild where the bot has been requested to play music</param>
-        public async Task PlayMusic(IAudioClient audioClient, IGuild guild)
+        public async Task PlayMusic(IVoiceChannel channel,IAudioClient audioClient, IGuild guild)
         {
             _isConnected = true;
+            _currentChannel = channel;
             //as we said, we don't tell the streaming service to play a music if it is already playing one
             if(_isPlaying)
-                return; 
+                return;
+            //which means, if we already in a channel and we didn't get disconnected
+            if(audioClient != null)
+                _audioClient = audioClient;
 
+            _disconnectTimer.Change((int) BotProperties.TimeoutTime.TotalMilliseconds,
+                (int) BotProperties.TimeoutTime.TotalMilliseconds); //this is ok because < Int32.MaxValue
             while (_streamQueue.Count > 0)
             {
                 _isPlaying = true;
                 //this await call will stuck at this state as long as we are playing a music
                 //and will play music as long as there is something in the streaming queue
-                await PlayNextMusic(audioClient, ConsumeMusic(guild),guild);
+                await PlayNextMusic(ConsumeMusic(guild),guild);
             }
             //reset states
             _isPlaying = false;
-            _isConnected = false;
         }
+        
+        /// <summary>
+        /// Method used to skip a playing music
+        /// The method is telling a cancellation token to be marked as active so that
+        /// CopyToAsync in the streaming service is interrupted
+        /// </summary>
+        public void SkipToNextMusic()
+        {
+            _streamCancelToken.Cancel();
+            _streamCancelToken.Dispose(); //we free the ram storage of token generator
+            _streamCancelToken = new CancellationTokenSource(); //we create a new one for the following music 
+            
+        }
+        
+        
         
         /// <summary>
         /// PlayNextMusic is private method called by PlayMusic in order to tell the
@@ -162,9 +201,9 @@ namespace Synchro.Services
         /// </summary>
         /// <param name="audioClient">the guild audioclient</param>
         /// <param name="music">the content to stream to the discord stream</param>
-        private async Task PlayNextMusic(IAudioClient audioClient,VideoSearchResult music,IGuild guild)
+        private async Task PlayNextMusic(VideoSearchResult music,IGuild guild)
         {
-            await _streamingService.PlayMusic(audioClient, music,_streamCancelToken.Token,guild);
+            await _streamingService.PlayMusic(_audioClient, music,_streamCancelToken.Token,guild);
         }
         
         /// <summary>
@@ -196,23 +235,16 @@ namespace Synchro.Services
             return video;
         }
 
-        /// <summary>
-        /// Method used to skip a playing music
-        /// The method is telling a cancellation token to be marked as active so that
-        /// CopyToAsync in the streaming service is interrupted
-        /// </summary>
-        public void SkipToNextMusic()
+        private void OnTimerElapsed(object state)
         {
-            _streamCancelToken.Cancel();
-            _streamCancelToken.Dispose(); //we free the ram storage of token generator
-            _streamCancelToken = new CancellationTokenSource(); //we create a new one for the following music 
-            
+            if (!_isPlaying)
+            {
+                ClearMusicProvider(true); //async not awaited call
+                _disconnectTimer.Change(infiniteWaitingTime, infiniteWaitingTime);
+            }
         }
         
-        /// <summary>
-        /// Check if there is any music in the streamqueue right now
-        /// </summary>
-        /// <returns>whether there is any music currently in the streaming queue</returns>
-        public bool HasMusicInQueue() => _streamQueue.Count > 0 || _isPlaying;
+        
+        
     }
 }

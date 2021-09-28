@@ -26,9 +26,7 @@ namespace Synchro.Modules
             }
 
             await ReplyAsync("✅ **Disconnected from channel: **" + channel.Name);
-            BotProperties.GuildPropsMap[channel.GuildId].ClearMusicProvider();
-            
-            await Context.Guild.CurrentUser.VoiceChannel.DisconnectAsync();
+            await BotProperties.GuildPropsMap[channel.GuildId].ClearMusicProvider();
         }
         
     }

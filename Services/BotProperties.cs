@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security;
 using Discord;
 using Synchro.Models;
 using YoutubeExplode.Channels;
@@ -13,6 +14,9 @@ namespace Synchro.Services
         
         //max duration of a video that can be streamed
         public static int MaxVideoDuration = 30; // in minutes
+        
+        //max duration without any voice Activity before disconnection from voice channel
+        public static TimeSpan TimeoutTime = TimeSpan.FromMinutes(10);
 
         public static BotGuildProps UpdateProps(IGuild guild)
         {

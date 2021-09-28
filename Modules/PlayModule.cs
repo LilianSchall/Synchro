@@ -27,7 +27,7 @@ namespace Synchro.Modules
             
 
             
-            if (!props.IsConnected())
+            if (!props.IsConnected() || Context.Guild.CurrentUser.VoiceChannel == null)
             {
                 Console.WriteLine("Connecting to channel " + channel.Name);
                 IAudioClient audioClient = await channel.ConnectAsync(selfDeaf:true);
@@ -41,7 +41,7 @@ namespace Synchro.Modules
                 await ReplyAsync("🎶 **Searching for** `" + message + "`");
                 QueuedItemInfo info = props.AddMusic(message);
                 await ReplyAsync("**Playing** `" + info.Result.Title + "` **- Now !**");
-                await props.PlayMusic(audioClient);
+                await props.PlayMusic(channel,audioClient);
             }
             else
             {
@@ -57,7 +57,8 @@ namespace Synchro.Modules
                     await ReplyAsync("❌**Sorry, video is longer than " + BotProperties.MaxVideoDuration + " minutes.**");
                     return;
                 }
-                
+                //we don't need to mention the audioclient since we still got it in memory
+                await props.PlayMusic(channel);
 
                 EmbedBuilder eb = new EmbedBuilder()
                 {
