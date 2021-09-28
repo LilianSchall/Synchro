@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Synchro.Services;
@@ -19,10 +20,11 @@ namespace Synchro.Handlers
         /// attach the Handle Detector that will be triggered each time the bot detectsa connection to a voice channel
         /// in a guild he is connected to
         /// </summary>
-        public async Task InstallDetector()
+        public Task InstallDetector()
         {
             // use this to detect if we have been disconnected from a voice channel
             _client.UserVoiceStateUpdated += HandleDetector;
+            return Task.CompletedTask;
         }
 
         /// <summary>

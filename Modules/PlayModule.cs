@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
@@ -52,7 +53,7 @@ namespace Synchro.Modules
                 {
                     info = props.AddMusic(message);
                 }
-                catch (Exception e)
+                catch (InvalidConstraintException)
                 {
                     await ReplyAsync("❌**Sorry, video is longer than " + BotProperties.MaxVideoDuration + " minutes.**");
                     return;

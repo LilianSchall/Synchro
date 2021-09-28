@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
@@ -46,7 +47,7 @@ namespace Synchro.Models
         /// </summary>
         /// <param name="info">the info which we will base the video research on</param>
         /// <returns>Info object about the video found</returns>
-        /// <exception cref="ArgumentException">
+        /// <exception cref="InvalidConstraintException">
         /// If the video found is greater than 30 minutes long
         /// we do not add it to streaming queue
         /// </exception>
@@ -56,10 +57,10 @@ namespace Synchro.Models
             {
                 return _musicService.AddMusic(info);
             }
-            catch (Exception e)
+            catch (InvalidConstraintException)
             {
-                throw new ArgumentException("Video is longer than " + 
-                                            BotProperties.MaxVideoDuration + " minutes!");
+                throw new InvalidConstraintException("Video is longer than " + 
+                                                     BotProperties.MaxVideoDuration + " minutes!" );
             }
             
         }
@@ -95,9 +96,10 @@ namespace Synchro.Models
         /// SkipToNextMusic is used when the user wants to skip the music
         /// </summary>
         /// <returns></returns>
-        public async Task SkipToNextMusic()
+        public Task SkipToNextMusic()
         {
             _musicService.SkipToNextMusic();
+            return Task.CompletedTask;
         }
     }
 }

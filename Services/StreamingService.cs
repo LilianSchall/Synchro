@@ -81,9 +81,10 @@ namespace Synchro.Services
                     await output.CopyToAsync(discord, cancellationToken);
                     Console.WriteLine("Finished to copy the output into discord stream");
                 }
-                catch (Exception e)
+                catch (TaskCanceledException tce)
                 {
-                    Console.WriteLine("cancelling music...");
+                    
+                    Console.WriteLine("cancelling music..." +  tce.Source);
                 }
                 finally
                 {

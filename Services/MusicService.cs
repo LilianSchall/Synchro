@@ -75,7 +75,7 @@ namespace Synchro.Services
         /// </summary>
         /// <param name="info">the info which we will base the video research on</param>
         /// <returns>Info object about the video found</returns>
-        /// <exception cref="ArgumentException">
+        /// <exception cref="InvalidConstraintException">
         /// If the video found is greater than 30 minutes long
         /// we do not add it to streaming queue
         /// </exception>
@@ -234,12 +234,21 @@ namespace Synchro.Services
             _streamQueue.RemoveAt(0);
             return video;
         }
-
+        /// <summary>
+        /// Method that is trigger each interval of _disconnectTimer
+        /// Check if we are playing a music and if not, then the trigger of this method
+        /// represent the fact that we didn't had any activity for a specified time
+        /// So we clear and disconnect the bot from the voice channel
+        /// </summary>
+        /// <param name="state">null state required by Timer Constructor</param>
         private void OnTimerElapsed(object state)
         {
             if (!_isPlaying)
             {
+                //we cannot make it await because timer that triggers OnTimerElasped doesn't support Async method
+                #pragma warning disable 4014
                 ClearMusicProvider(true); //async not awaited call
+                #pragma warning restore 4014
                 _disconnectTimer.Change(infiniteWaitingTime, infiniteWaitingTime);
             }
         }
