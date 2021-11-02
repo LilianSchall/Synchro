@@ -186,6 +186,8 @@ namespace Synchro.Services
                 //and will play music as long as there is something in the streaming queue
                 await PlayNextMusic(ConsumeMusic(guild),guild);
                 _currentSong = null;
+                Thread.Sleep(1000);
+                
             }
             //reset states
             Console.WriteLine("There isn't music left in queue in guild " + guild.Name+": resetting playing state.");
@@ -200,16 +202,8 @@ namespace Synchro.Services
         /// </summary>
         public void SkipToNextMusic()
         {
-            _streamCancelToken.Cancel();
-            _streamCancelToken.Dispose(); //we free the ram storage of token generator
+            _streamingService.SkipCurrentMusic(_streamCancelToken);
             _streamCancelToken = new CancellationTokenSource(); //we create a new one for the following music 
-
-            _isPlaying = _streamQueue.Count > 0;
-            Console.WriteLine("Skipped music, bot " +  (_isPlaying ? "is still playing music" : "is not playing anymore"));
-            if (!_isPlaying)
-                StartTimer();
-            
-
         }
         
         
@@ -222,7 +216,7 @@ namespace Synchro.Services
         /// <param name="music">the content to stream to the discord stream</param>
         private async Task PlayNextMusic(VideoSearchResult music,IGuild guild)
         {
-            await _streamingService.PlayMusic(_audioClient, music,_streamCancelToken.Token,guild);
+            await _streamingService.PlayMusic(_audioClient, music,_streamCancelToken,guild);
         }
         
         /// <summary>

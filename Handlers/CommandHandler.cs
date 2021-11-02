@@ -48,7 +48,7 @@ namespace Synchro.Handlers
             int argPos = 0;
             
             //condition to prevent any trigger by a bot message, or a message that isn't prefixed by the right character
-            if (!(message.HasCharPrefix(';', ref argPos) ||
+            if (!(message.HasCharPrefix(':', ref argPos) ||
                   message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot)
                 return;
             

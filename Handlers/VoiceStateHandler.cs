@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
@@ -40,9 +41,12 @@ namespace Synchro.Handlers
                 return;
             
             //if we just got disconnected from a voice channel 
-            if (oldState.VoiceChannel.Users.Contains(_client.CurrentUser as SocketUser) && 
+            if (oldState.VoiceChannel.Users.Contains(_client.CurrentUser as SocketUser) &&
                 !newState.VoiceChannel.Users.Contains(_client.CurrentUser as SocketUser))
+            {
+                Console.WriteLine("Bot wasn't disconnected by cli, cleaning...");
                 await BotProperties.GuildPropsMap[newState.VoiceChannel.Guild.Id].ClearMusicProvider(disconnect:false);
+            }
             //we just clear the bot from it's worker status
         }
     }

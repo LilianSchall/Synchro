@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -14,7 +15,9 @@ namespace Synchro.Services
     public class StreamingService
     {
         //Api client used to communicate with youtube content
-        private YoutubeClient _ytclient;
+        private readonly YoutubeClient _ytclient;
+
+        private Task _player = null;
 
         public StreamingService()
         {
@@ -28,7 +31,7 @@ namespace Synchro.Services
         /// <returns>the first content found</returns>
         public VideoSearchResult SearchContent(string info)
         {
-            var content = _ytclient.Search.GetVideosAsync(info).CollectAsync(10).GetAwaiter().GetResult();
+            var content = _ytclient.Search.GetVideosAsync(info).CollectAsync(5).GetAwaiter().GetResult();
             
             //display the found research in stdout
             Console.WriteLine("--------------------");
@@ -52,7 +55,7 @@ namespace Synchro.Services
         /// In case we want to skip the current music
         /// </param>
         /// <param name="guild">The guild where we stream the content</param>
-        public async Task PlayMusic(IAudioClient audioClient, VideoSearchResult music,CancellationToken cancellationToken,IGuild guild)
+        public async Task PlayMusic(IAudioClient audioClient, VideoSearchResult music,CancellationTokenSource cts,IGuild guild)
         {
             Console.WriteLine("Initializing streaming...");
             
@@ -64,36 +67,63 @@ namespace Synchro.Services
             //some informations about the stream...
             Console.WriteLine("Size of stream: " + streamInfo.Size.KiloBytes + "KB");
             Console.WriteLine("Bitrate: " + streamInfo.Bitrate);
-            
+
+            Progress<double> downloadProgress = new Progress<double>();
+            downloadProgress.ProgressChanged += DownloadProgressChanged;
+
             //we download the content into a specified format we have got with the stream info
-            await _ytclient.Videos.Streams.DownloadAsync(streamInfo, $"{guild.Id}.{streamInfo.Container}");
+            await _ytclient.Videos.Streams.DownloadAsync(streamInfo, $"{guild.Id}.{streamInfo.Container}", progress: downloadProgress);
             Console.WriteLine("Finished download...");
-            
-            //we create an audio stream through an ffmpeg process
-            using (var ffmpeg = CreateStream($"{guild.Id}.{streamInfo.Container}"))
-            using (var output = ffmpeg.StandardOutput.BaseStream)
-            using (var discord = audioClient.CreatePCMStream(AudioApplication.Music))
+
+            _player =  Task.Run(async () =>
             {
-                Console.WriteLine("Flushing stream...");
+                CancellationToken ct = cts.Token;
+                
+                ct.ThrowIfCancellationRequested();
+
+                //we create an audio stream through an ffmpeg process
+                using var ffmpeg = CreateStream($"{guild.Id}.{streamInfo.Container}");
+                Console.WriteLine("Created ffmpeg stream");
+                await using var output = ffmpeg.StandardOutput.BaseStream;
+                Console.WriteLine("Created output base stream");
+                await using var discord = audioClient.CreatePCMStream(AudioApplication.Music);
+                Console.WriteLine("Created discord pcm stream");
                 try
                 {
+                    Console.WriteLine("Copying stream...");
                     //we copy the ffmpeg stream into the discord stream and base any interruption on a cancellation token
-                    await output.CopyToAsync(discord, cancellationToken);
+                    await output.CopyToAsync(discord, cts.Token);
                     Console.WriteLine("Finished to copy the output into discord stream");
-                }
-                catch (TaskCanceledException tce)
-                {
-                    
-                    Console.WriteLine("cancelling music..." +  tce.Source);
                 }
                 finally
                 {
                     Console.WriteLine("Flushing discord buffer");
-                    await discord.FlushAsync();
+                    await discord.FlushAsync(ct);
+                    Thread.Sleep(2000);
+                    Console.WriteLine("Finished sleeping...");
                 }
-            }
+                Console.WriteLine("End of playing task");
+            },cts.Token);
 
+            try
+            {
+                await _player;
+            }
+            catch (OperationCanceledException)
+            {
+                
+            }
+            finally
+            {
+                cts.Dispose();
+            }
         }
+
+        
+
+        public void SkipCurrentMusic(CancellationTokenSource cts) => cts.Cancel();
+
+
         /// <summary>
         /// Method used to create a ffmpeg process that will create a stream from the downloaded content
         /// </summary>
@@ -101,15 +131,23 @@ namespace Synchro.Services
         /// <returns>the ffmpeg process</returns>
         private Process CreateStream(string path)
         {
-            return Process.Start(new ProcessStartInfo
+            Process ffmpeg =  Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg",
                 Arguments = $"-hide_banner -loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
             });
+            Console.WriteLine("Created ffmpeg process");
+            return ffmpeg;
         }
-        
-        
+
+        private void DownloadProgressChanged(object sender, double value)
+        {
+            for (int i = 0; i < (int)(value*100)/10; i++)
+                Console.Write("#");
+            Console.WriteLine(" : " + (int)(value*100) + " %");
+            
+        }
     }
 }

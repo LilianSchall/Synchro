@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -27,7 +29,10 @@ namespace Synchro.Core
         {
             _client = new DiscordSocketClient();
             _commands = new CommandService();
-            _discordToken = Environment.GetEnvironmentVariable("DISCORDTOKEN");
+            if (!Debugger.IsAttached)
+                _discordToken = Environment.GetEnvironmentVariable("DISCORDTOKEN");
+            else
+                _discordToken = "***REMOVED***";
             Console.WriteLine("discord token: " + _discordToken);
             if (_discordToken == null)
             {
