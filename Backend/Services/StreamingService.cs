@@ -58,15 +58,10 @@ namespace Synchro.Services
         public async Task PlayMusic(IAudioClient audioClient, VideoSearchResult music,CancellationTokenSource cts,IGuild guild)
         {
             Console.WriteLine("Initializing streaming...");
-            
-            //we search the stream manifest through the id of the music we want to stream
-            var streamManifest = await _ytclient.Videos.Streams.GetManifestAsync(music.Id);
-            //we get the audio-only stream info used to download the music
-            var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-            
+
             // we create a unique filename based on the guild that wants to play the music,
             // and the format of the music that we want to play
-            string filename = $"{guild.Id}.{streamInfo.Container}";
+            string filename = $"{guild.Id}.mp3";
             
             DownloadMusic(filename,music.Url);
             
@@ -79,7 +74,7 @@ namespace Synchro.Services
                 ct.ThrowIfCancellationRequested();
 
                 //we create an audio stream through an ffmpeg process
-                using var ffmpeg = CreateStream($"{guild.Id}.{streamInfo.Container}");
+                using var ffmpeg = CreateStream(filename);
                 Console.WriteLine("Created ffmpeg stream");
                 await using var output = ffmpeg.StandardOutput.BaseStream;
                 Console.WriteLine("Created output base stream");
