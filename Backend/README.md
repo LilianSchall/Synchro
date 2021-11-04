@@ -11,17 +11,14 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/Synchro.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">SYNCHRO</h3>
   This is the official repository for Synchro Discord Bot. Let the public of a voice channel be the dj of it, by playing music through Synchro. 
   <p align="center">
     
-    <br />
     <a href="https://https://github.com/LilianSchall/Synchro"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
     <a href="https://github.com/LilianSchall/Synchro/">View Demo</a>
     ·
     <a href="https://github.com/LilianSchall/Synchro/issues">Report Bug</a>
@@ -54,7 +51,6 @@
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
