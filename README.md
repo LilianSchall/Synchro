@@ -197,4 +197,4 @@ Project Link: [https://github.com/LilianSchall/Synchro](https://github.com/Lilia
 [issues-shield]: https://img.shields.io/github/issues/LilianSchall/Synchro.svg?style=for-the-badge
 [issues-url]: https://github.com/LilianSchall/Synchro/issues
 [license-shield]: https://img.shields.io/github/license/LilianSchall/Synchro.svg?style=for-the-badge
-[license-url]: https://github.com/LilianSchall/Synchro/blob/main/LICENSE.txt
+[license-url]: https://github.com/LilianSchall/Synchro/blob/main/LICENSE
