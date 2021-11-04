@@ -64,15 +64,12 @@ namespace Synchro.Services
             //we get the audio-only stream info used to download the music
             var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
             
-            //some informations about the stream...
-            Console.WriteLine("Size of stream: " + streamInfo.Size.KiloBytes + "KB");
-            Console.WriteLine("Bitrate: " + streamInfo.Bitrate);
-
-            Progress<double> downloadProgress = new Progress<double>();
-            downloadProgress.ProgressChanged += DownloadProgressChanged;
-
-            //we download the content into a specified format we have got with the stream info
-            await _ytclient.Videos.Streams.DownloadAsync(streamInfo, $"{guild.Id}.{streamInfo.Container}", progress: downloadProgress);
+            // we create a unique filename based on the guild that wants to play the music,
+            // and the format of the music that we want to play
+            string filename = $"{guild.Id}.{streamInfo.Container}";
+            
+            DownloadMusic(filename,music.Url);
+            
             Console.WriteLine("Finished download...");
 
             _player =  Task.Run(async () =>
@@ -141,13 +138,22 @@ namespace Synchro.Services
             Console.WriteLine("Created ffmpeg process");
             return ffmpeg;
         }
-
-        private void DownloadProgressChanged(object sender, double value)
+        
+        /// <summary>
+        /// Method used to download the music based on its url and filename
+        /// </summary>
+        /// <param name="filename">the file name of the downloaded music</param>
+        /// <param name="url">the url of the music we want to download</param>
+        private void DownloadMusic(string filename, string url)
         {
-            for (int i = 0; i < (int)(value*100)/10; i++)
-                Console.Write("#");
-            Console.WriteLine(" : " + (int)(value*100) + " %");
-            
+            Process downloader = Process.Start( new ProcessStartInfo
+            {
+                FileName = "python3",
+                Arguments = $"downloader.py --filename={filename} --url={url}"
+            });
+            if (downloader == null)
+                throw new ApplicationException("Synchro: No downloader.py found !");
+            downloader.WaitForExit();
         }
     }
 }
