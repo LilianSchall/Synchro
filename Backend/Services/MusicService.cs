@@ -217,6 +217,7 @@ namespace Synchro.Services
         private async Task PlayNextMusic(VideoSearchResult music,IGuild guild)
         {
             await _streamingService.PlayMusic(_audioClient, music,_streamCancelToken,guild);
+            _streamCancelToken = new CancellationTokenSource(); //we create a new one for the following music 
         }
         
         /// <summary>

@@ -66,10 +66,10 @@ namespace Synchro.Services
             DownloadMusic(filename,music.Url);
             
             Console.WriteLine("Finished download...");
-            
+            Console.WriteLine("Constructing player");
             _player =  Task.Run(async () =>
             {
-                CancellationToken ct = cts.Token;
+                Console.WriteLine("Player constructed");
 
                 Console.WriteLine("Creating ffmpeg process");
                 //we create an audio stream through an ffmpeg process
@@ -97,7 +97,7 @@ namespace Synchro.Services
                     await discord.FlushAsync();
                     output.Close();
                     ffmpeg.Close();
-                    Console.WriteLine("Flushed discord buffer and closed ffmpeg process");
+                    Console.WriteLine("Flushed discord buffer after Cancellation !");
                 }
                 Console.WriteLine("End of playing task");
             });
