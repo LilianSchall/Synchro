@@ -64,18 +64,24 @@ namespace Synchro.Services
             var streamManifest = await _ytclient.Videos.Streams.GetManifestAsync(music.Id);
             //we get the audio-only stream info used to download the music
             var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestBitrate();
+            Console.WriteLine("Got streaming informations:");
             
             //Let's download the file with an additionnal wrapper 
             // https://github.com/detaybey/WrapYoutubeDl
             string url = music.Url;
             string filename = $"{guild.Id}.{streamInfo.Container}";
+            Console.WriteLine("Url is: " + url);
+            Console.WriteLine("Filename is: " + filename);
+            
             AudioDownloader downloader = new AudioDownloader(url, filename, ".");
             
             downloader.ProgressDownload += DownloadProgressChanged;
+            downloader.FinishedDownload += DownloadFinished;
             
+            Console.WriteLine("Created Downloader !");
             downloader.Download();
             
-            Console.WriteLine("Finished download...");
+            
 
             _player =  Task.Run(async () =>
             {
@@ -144,8 +150,14 @@ namespace Synchro.Services
             return ffmpeg;
         }
 
+        private void DownloadFinished(object sender, DownloadEventArgs e)
+        {
+            Console.WriteLine("Finished download...");
+        }
+        
         private void DownloadProgressChanged(object sender, ProgressEventArgs e)
         {
+            Console.WriteLine("Downloading...");
             for (int i = 0; i < (int)(e.Percentage)/10; i++)
                 Console.Write("#");
             Console.WriteLine(" : " + (int)e.Percentage + " %");

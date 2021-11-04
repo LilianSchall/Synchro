@@ -32,7 +32,7 @@ namespace Synchro.Core
             if (!Debugger.IsAttached)
                 _discordToken = Environment.GetEnvironmentVariable("DISCORDTOKEN");
             else
-                _discordToken = "ODkzMTc5MjgxMTA5MzE5NzEx.YVXsBw._dY8yW31qkyvof5_KgzDARvGbP8";
+                _discordToken = "";
             Console.WriteLine("discord token: " + _discordToken);
             if (_discordToken == null)
             {
