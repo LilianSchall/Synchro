@@ -74,15 +74,15 @@ namespace Synchro.Services
             Console.WriteLine("Filename is: " + filename);
             
             AudioDownloader downloader = new AudioDownloader(url, filename, ".");
-            
-            downloader.ProgressDownload += DownloadProgressChanged;
-            downloader.FinishedDownload += DownloadFinished;
-            
             Console.WriteLine("Created Downloader !");
+            //downloader.ProgressDownload += DownloadProgressChanged;
+            //downloader.FinishedDownload += DownloadFinished;
+            
+            Console.WriteLine("Set Downloader !");
             downloader.Download();
             
             
-
+            Console.WriteLine("Starting Task...");
             _player =  Task.Run(async () =>
             {
                 CancellationToken ct = cts.Token;
