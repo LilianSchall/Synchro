@@ -66,16 +66,15 @@ namespace Synchro.Services
             DownloadMusic(filename,music.Url);
             
             Console.WriteLine("Finished download...");
-
+            
             _player =  Task.Run(async () =>
             {
                 CancellationToken ct = cts.Token;
-                
-                ct.ThrowIfCancellationRequested();
 
+                Console.WriteLine("Creating ffmpeg process");
                 //we create an audio stream through an ffmpeg process
-                using var ffmpeg = CreateStream(filename);
-                Console.WriteLine("Created ffmpeg stream");
+                using var ffmpeg = CreateStream(filename).Result;
+                Console.WriteLine("Created ffmpeg process !");
                 await using var output = ffmpeg.StandardOutput.BaseStream;
                 Console.WriteLine("Created output base stream");
                 await using var discord = audioClient.CreatePCMStream(AudioApplication.Music);
@@ -86,29 +85,25 @@ namespace Synchro.Services
                     //we copy the ffmpeg stream into the discord stream and base any interruption on a cancellation token
                     await output.CopyToAsync(discord, cts.Token);
                     Console.WriteLine("Finished to copy the output into discord stream");
+                    Console.WriteLine("Flushing discord buffer normally");
+                    await discord.FlushAsync();
+                    output.Close();
+                    ffmpeg.Close();
+                    Console.WriteLine("Flushed !");
                 }
-                finally
+                catch (OperationCanceledException)
                 {
                     Console.WriteLine("Flushing discord buffer");
-                    await discord.FlushAsync(ct);
-                    Thread.Sleep(2000);
-                    Console.WriteLine("Finished sleeping...");
+                    await discord.FlushAsync();
+                    output.Close();
+                    ffmpeg.Close();
+                    Console.WriteLine("Flushed discord buffer and closed ffmpeg process");
                 }
                 Console.WriteLine("End of playing task");
-            },cts.Token);
+            });
 
-            try
-            {
-                await _player;
-            }
-            catch (OperationCanceledException)
-            {
-                
-            }
-            finally
-            {
-                cts.Dispose();
-            }
+            await _player;
+            cts.Dispose();
         }
 
         
@@ -121,17 +116,21 @@ namespace Synchro.Services
         /// </summary>
         /// <param name="path">the path to the downloaded content</param>
         /// <returns>the ffmpeg process</returns>
-        private Process CreateStream(string path)
+        private async Task<Process> CreateStream(string path)
         {
-            Process ffmpeg =  Process.Start(new ProcessStartInfo
+            Task<Process> task = Task<Process>.Run(() =>
             {
-                FileName = "ffmpeg",
-                Arguments = $"-hide_banner -loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
+                Process ffmpeg = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "ffmpeg",
+                    Arguments = $"-hide_banner -loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                });
+                return ffmpeg;
             });
-            Console.WriteLine("Created ffmpeg process");
-            return ffmpeg;
+
+            return await task;
         }
         
         /// <summary>
