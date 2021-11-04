@@ -15,9 +15,8 @@
   </a>
 
   <h3 align="center">SYNCHRO</h3>
-  This is the official repository for Synchro Discord Bot. Let the public of a voice channel be the dj of it, by playing music through Synchro. 
   <p align="center">
-    
+    This is the official repository for Synchro Discord Bot. Let the public of a voice channel be the dj of it, by playing music through Synchro. 
     <a href="https://https://github.com/LilianSchall/Synchro"><strong>Explore the docs »</strong></a>
     <a href="https://github.com/LilianSchall/Synchro/">View Demo</a>
     ·
