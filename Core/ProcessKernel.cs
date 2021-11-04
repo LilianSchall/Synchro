@@ -32,7 +32,7 @@ namespace Synchro.Core
             if (!Debugger.IsAttached)
                 _discordToken = Environment.GetEnvironmentVariable("DISCORDTOKEN");
             else
-                _discordToken = "";
+                _discordToken = "***REMOVED***";
             Console.WriteLine("discord token: " + _discordToken);
             if (_discordToken == null)
             {
