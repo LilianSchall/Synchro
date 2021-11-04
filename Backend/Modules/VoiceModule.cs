@@ -33,7 +33,7 @@ namespace Synchro.Modules
                 return;
             }
 
-            await ReplyAsync("✅ **Disconnected from channel: **" + channel.Name);
+            await ReplyAsync("✅ **Disconnected from channel: **`" + channel.Name + "` !");
             await BotProperties.GuildPropsMap[channel.GuildId].ClearMusicProvider();
             Console.WriteLine("Left channel " + channel.Name + "from Guild: " + channel.Guild.Name);
         }

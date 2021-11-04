@@ -38,7 +38,7 @@ namespace Synchro.Modules
                     return;
                 }
                 Console.WriteLine("Connected !");
-                await ReplyAsync("👍 **Joined**" + "`"+channel.Name + "`" + "**!**");
+                await ReplyAsync("👍 **Joined** " + "`"+channel.Name + "`" + "**!**");
                 await ReplyAsync("🎶 **Searching for** `" + message + "`");
                 QueuedItemInfo info = props.AddMusic(message);
                 await ReplyAsync("**Playing** `" + info.Result.Title + "` **- Now !**");
