@@ -7,7 +7,6 @@
 
     <ItemGroup>
       <PackageReference Include="Discord.Net" Version="2.4.0" />
-      <PackageReference Include="WrapYouTubeDl" Version="1.0.4" />
       <PackageReference Include="YoutubeExplode.Converter" Version="2.1.0" />
     </ItemGroup>
 

@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
-using WrapYoutubeDl;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Search;
@@ -63,26 +62,19 @@ namespace Synchro.Services
             //we search the stream manifest through the id of the music we want to stream
             var streamManifest = await _ytclient.Videos.Streams.GetManifestAsync(music.Id);
             //we get the audio-only stream info used to download the music
-            var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestBitrate();
-            Console.WriteLine("Got streaming informations:");
+            var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
             
-            //Let's download the file with an additionnal wrapper 
-            // https://github.com/detaybey/WrapYoutubeDl
-            string url = music.Url;
-            string filename = $"{guild.Id}.{streamInfo.Container}";
-            Console.WriteLine("Url is: " + url);
-            Console.WriteLine("Filename is: " + filename);
-            
-            AudioDownloader downloader = new AudioDownloader(url, filename, ".");
-            Console.WriteLine("Created Downloader !");
-            //downloader.ProgressDownload += DownloadProgressChanged;
-            //downloader.FinishedDownload += DownloadFinished;
-            
-            Console.WriteLine("Set Downloader !");
-            downloader.Download();
-            
-            
-            Console.WriteLine("Starting Task...");
+            //some informations about the stream...
+            Console.WriteLine("Size of stream: " + streamInfo.Size.KiloBytes + "KB");
+            Console.WriteLine("Bitrate: " + streamInfo.Bitrate);
+
+            Progress<double> downloadProgress = new Progress<double>();
+            downloadProgress.ProgressChanged += DownloadProgressChanged;
+
+            //we download the content into a specified format we have got with the stream info
+            await _ytclient.Videos.Streams.DownloadAsync(streamInfo, $"{guild.Id}.{streamInfo.Container}", progress: downloadProgress);
+            Console.WriteLine("Finished download...");
+
             _player =  Task.Run(async () =>
             {
                 CancellationToken ct = cts.Token;
@@ -90,7 +82,7 @@ namespace Synchro.Services
                 ct.ThrowIfCancellationRequested();
 
                 //we create an audio stream through an ffmpeg process
-                using var ffmpeg = CreateStream(filename);
+                using var ffmpeg = CreateStream($"{guild.Id}.{streamInfo.Container}");
                 Console.WriteLine("Created ffmpeg stream");
                 await using var output = ffmpeg.StandardOutput.BaseStream;
                 Console.WriteLine("Created output base stream");
@@ -150,17 +142,11 @@ namespace Synchro.Services
             return ffmpeg;
         }
 
-        private void DownloadFinished(object sender, DownloadEventArgs e)
+        private void DownloadProgressChanged(object sender, double value)
         {
-            Console.WriteLine("Finished download...");
-        }
-        
-        private void DownloadProgressChanged(object sender, ProgressEventArgs e)
-        {
-            Console.WriteLine("Downloading...");
-            for (int i = 0; i < (int)(e.Percentage)/10; i++)
+            for (int i = 0; i < (int)(value*100)/10; i++)
                 Console.Write("#");
-            Console.WriteLine(" : " + (int)e.Percentage + " %");
+            Console.WriteLine(" : " + (int)(value*100) + " %");
             
         }
     }
