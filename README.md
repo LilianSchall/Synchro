@@ -11,7 +11,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/LilianSchall/Synchro">
-    <img src="images/Synchro.png" alt="Logo" width="960" height="380">
+    <img src="images/Synchro.png" alt="Logo" width="960" height="500">
   </a>
 
   <h3 align="center">SYNCHRO</h3>
