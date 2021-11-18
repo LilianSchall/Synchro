@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
+using Synchro.Models;
 using Synchro.Services;
 
 namespace Synchro.Modules
@@ -9,7 +11,17 @@ namespace Synchro.Modules
         [Command("clear")]
         public async Task Clear()
         {
-            BotProperties.GuildPropsMap[Context.Guild.Id].ClearQueue();
+            BotGuildProps props = BotProperties.GuildPropsMap.ContainsKey(Context.Guild.Id)
+                ? BotProperties.GuildPropsMap[Context.Guild.Id]
+                : BotProperties.UpdateProps(Context.Guild);
+
+            if (props.IsChannelInBlacklist(((SocketTextChannel)Context.Channel).Id))
+            {
+                await ReplyAsync("❌ **This channel is blacklisted.**");
+                return;
+            }
+
+            props.ClearQueue();
             await ReplyAsync("⏺ **Queue cleared ! **" + Context.User.Mention);
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Discord;
@@ -18,13 +19,13 @@ namespace Synchro.Models
         //the guild object the props object is referenced to
         private IGuild _guild;
 
-        
+        private List<ulong> _textChannelBlacklist;
         
         public BotGuildProps(IGuild guild)
         {
             _musicService = new MusicService();
             _guild = guild;
-            
+            _textChannelBlacklist = new List<ulong>();
         }
         
         /// <summary>
@@ -107,5 +108,24 @@ namespace Synchro.Models
             _musicService.SkipToNextMusic();
             return Task.CompletedTask;
         }
+
+        public void AddChannelToBlacklist(ulong channelId)
+        {
+            Console.WriteLine("Adding channel to blacklist with id: " + channelId);
+            _textChannelBlacklist.Add(channelId);
+        }
+
+        public void RemoveChannelFromBlacklist(ulong channelId)
+        {
+            Console.WriteLine("Removing channel from blacklist with id: " + channelId);
+            bool removed = _textChannelBlacklist.Remove(channelId);
+            
+            Console.WriteLine("Channel has " + (removed ? "" : "not ") + "been removed.");
+        }
+
+
+        public bool IsChannelInBlacklist(ulong channelId)
+            => _textChannelBlacklist.Contains(channelId);
+
     }
 }

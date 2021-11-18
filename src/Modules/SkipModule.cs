@@ -17,13 +17,24 @@ namespace Synchro.Modules
         public async Task Skip()
         {
             IVoiceChannel channel = (Context.User as IGuildUser)?.VoiceChannel;
+            
+            BotGuildProps props = BotProperties.GuildPropsMap.ContainsKey(Context.Guild.Id) ? 
+                BotProperties.GuildPropsMap[Context.Guild.Id]:
+                BotProperties.UpdateProps(Context.Guild);
+
+            if (props.IsChannelInBlacklist(((SocketTextChannel)Context.Channel).Id))
+            {
+                await ReplyAsync("❌ **This channel is blacklisted.**");
+                return;
+            }
+            
             if (channel == null || channel != Context.Guild.CurrentUser.VoiceChannel)
             {
                 await ReplyAsync("❌ **You are not connected in the right voice channel currently.**");
                 return;
             }
 
-            if (BotProperties.GuildPropsMap[Context.Guild.Id].HasMusicInQueue())
+            if (props.HasMusicInQueue())
             {
                 await ReplyAsync("⏩ **Skipping to next music...**");
 

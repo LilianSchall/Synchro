@@ -20,7 +20,8 @@ namespace Synchro.Modules
                 .AddField("skip or s", "⏩ Skip the current music played.")
                 .AddField("leave","⤵️ ️Make the bot leave from its current channel.")
                 .AddField("clear", "⏺ Clears the current queue.")
-                .AddField("settings", "⚙️ display the settings command. ")
+                .AddField("settings", "⚙️ display the settings command.")
+                .AddField("help", "🤝 display this message.")
                 .WithCurrentTimestamp();
 
             await ReplyAsync(embed: eb.Build());

@@ -16,6 +16,16 @@ namespace Synchro.Modules
         [Command("queue")]
         public async Task GetQueue()
         {
+            BotGuildProps props = BotProperties.GuildPropsMap.ContainsKey(Context.Guild.Id) ? 
+                BotProperties.GuildPropsMap[Context.Guild.Id]:
+                BotProperties.UpdateProps(Context.Guild);
+
+            if (props.IsChannelInBlacklist(((SocketTextChannel)Context.Channel).Id))
+            {
+                await ReplyAsync("❌ **This channel is blacklisted.**");
+                return;
+            }
+            
             Console.WriteLine("User " + Context.User + "is trying to play music.");
             IVoiceChannel channel = (Context.User as IGuildUser)?.VoiceChannel;
             if (channel == null || channel != Context.Guild.CurrentUser.VoiceChannel)

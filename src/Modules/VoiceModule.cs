@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
 using Discord.Commands;
+using Discord.WebSocket;
 using Synchro.Models;
 using Synchro.Services;
 
@@ -14,6 +15,15 @@ namespace Synchro.Modules
         public async Task Leave()
         {
             IVoiceChannel channel = (Context.User as IGuildUser)?.VoiceChannel;
+            BotGuildProps props = BotProperties.GuildPropsMap.ContainsKey(Context.Guild.Id) ? 
+                BotProperties.GuildPropsMap[Context.Guild.Id]:
+                BotProperties.UpdateProps(Context.Guild);
+
+            if (props.IsChannelInBlacklist(((SocketTextChannel)Context.Channel).Id))
+            {
+                await ReplyAsync("❌ **This channel is blacklisted.**");
+                return;
+            }
             if (channel == null)
             {
                 await ReplyAsync("❌ **You are not connected to any voice channel currently.**");
@@ -34,7 +44,7 @@ namespace Synchro.Modules
             }
 
             await ReplyAsync("✅ **Disconnected from channel: **`" + channel.Name + "` !");
-            await BotProperties.GuildPropsMap[channel.GuildId].ClearMusicProvider();
+            await props.ClearMusicProvider();
             Console.WriteLine("Left channel " + channel.Name + "from Guild: " + channel.Guild.Name);
         }
         

@@ -110,7 +110,11 @@ namespace Synchro.Services
 
         public void SkipCurrentMusic(CancellationTokenSource cts) => cts.Cancel();
 
-
+        public void PauseMusic(IAudioClient audioClient)
+        {
+            _player.Start();
+        }
+        
         /// <summary>
         /// Method used to create a ffmpeg process that will create a stream from the downloaded content
         /// </summary>
@@ -149,5 +153,6 @@ namespace Synchro.Services
                 throw new ApplicationException("Synchro: No downloader.py found !");
             downloader.WaitForExit();
         }
+        
     }
 }

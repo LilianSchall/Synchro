@@ -5,6 +5,7 @@ using Discord;
 using Discord.Audio;
 using Discord.Net;
 using Discord.Commands;
+using Discord.WebSocket;
 using Synchro.Models;
 using Synchro.Services;
 
@@ -16,17 +17,22 @@ namespace Synchro.Modules
         public async Task Play([Remainder] string message)
         {
             Console.WriteLine("User " + Context.User + "is trying to play music.");
+
             IVoiceChannel channel = (Context.User as IGuildUser)?.VoiceChannel;
             if (channel == null)
             {
                 await ReplyAsync("❌ **You are not connected to any voice channel currently.**");
                 return;
             }
-            BotGuildProps props = BotProperties.GuildPropsMap.ContainsKey(channel.Guild.Id) ? 
-                BotProperties.GuildPropsMap[channel.Guild.Id]:
-                BotProperties.UpdateProps(channel.Guild);
-            
+            BotGuildProps props = BotProperties.GuildPropsMap.ContainsKey(Context.Guild.Id) ? 
+                BotProperties.GuildPropsMap[Context.Guild.Id]:
+                BotProperties.UpdateProps(Context.Guild);
 
+            if (props.IsChannelInBlacklist(((SocketTextChannel)Context.Channel).Id))
+            {
+                await ReplyAsync("❌ **This channel is blacklisted.**");
+                return;
+            }
             
             if (!props.IsConnected() || Context.Guild.CurrentUser.VoiceChannel == null)
             {
