@@ -82,7 +82,6 @@ This project has been built with the following prerequisites
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
@@ -98,9 +97,7 @@ Please install the following required tools and frameworks:
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
-
-1. Creaye an application on Discord developer portal ! [https://discord.com/developers/applications](https://discord.com/developers/applications)
+1. Create an application on Discord developer portal ! [https://discord.com/developers/applications](https://discord.com/developers/applications)
 2. Clone the repo
    ```sh
    git clone https://github.com/LilianSchall/Synchro.git
@@ -113,7 +110,11 @@ _Below is an example of how you can instruct your audience on installing and set
    ```sh
    export DISCORDTOKEN="your_token"
    ```
-5. ...
+5. Run the bot !
+  ```sh
+  dotnet run
+  ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
@@ -132,11 +133,11 @@ When your Synchro is finally ready, type ;help in your channel to see the curren
 <!-- ROADMAP -->
 ## Roadmap
 
-- [] Work on docker containerization
-- [] Add whitelist channel command
+- [✅] Work on docker containerization
+- [✅] Add whitelist channel command
 - [] Work on CI
-- [] Add remove from queue command
-- [] Work on queue bug 
+- [✅] Add remove from queue command
+- [✅] Work on queue bug 
 
 See the [open issues](https://github.com/LilianSchall/Synchro/issues) for a full list of proposed features (and known issues).
 
@@ -146,8 +147,6 @@ See the [open issues](https://github.com/LilianSchall/Synchro/issues) for a full
 
 <!-- CONTRIBUTING -->
 ## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
@@ -174,7 +173,7 @@ Distributed under the GPL 3.0 License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Lilian Schall - [@your_twitter](https://twitter.com/lilixns)
+Lilian Schall - [@LilianSchall](https://twitter.com/LilianSchall)
 
 Project Link: [https://github.com/LilianSchall/Synchro](https://github.com/LilianSchall/Synchro)
 
